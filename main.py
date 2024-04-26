@@ -6,23 +6,59 @@ class Pawn:
     def __str__(self) -> str:
         return '1' if self.color else '0'
 
-    def get_possible_moves():
-        pass
+    def get_possible_moves(self, came_from=[]):
+        directions = (
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (-1, 1),
+            (1, -1),
+            (-1, -1),
+        )
+        possible_moves = []
+        for direction in directions:
+            if direction in came_from:
+                continue
+            new_row = self.row + direction[0]
+            new_col = self.col + direction[1]
+            if not (0 <= new_row < self.board.BOARD_SIZE and 0 <= new_col < self.board.BOARD_SIZE):
+                continue
+            if not self.board[new_row][new_col]:
+                continue
+            if not self.board[new_row][new_col]:
+                # move there and finish
+                pass
+            else:
+                # jump over the pawn and search for new moves
+                pass
 
 
 class Board:
     def __init__(self) -> None:
         self.BOARD_SIZE = 16
-        self.board = [['-' for _ in range(16)] for _ in range(16)]
+        self.board = [[None for _ in range(16)] for _ in range(16)]
         self.init_board()
         self.turn = True
 
     def __str__(self) -> str:
         return '\n'.join([' '.join([str(cell) for cell in row]) for row in self.board]) + '\n'
 
+    def print_board(self):
+        for row in self.board:
+            row_str = ''
+            for cell in row:
+                if cell:
+                    row_str += str(cell) + ' '
+                else:
+                    row_str += '- '
+            print(row_str.strip())
+        print('\n\n')
+
     def add_pawn(self, row, col, color: True):
         if 0 <= row < self.BOARD_SIZE and 0 <= col < self.BOARD_SIZE:
-            if self.board[row][col] == '-':
+            if not self.board[row][col]:
                 self.board[row][col] = Pawn(self, color)
             else:
                 raise ValueError('Cell is already occupied')
@@ -48,9 +84,9 @@ class Board:
                    0 <= new_row < self.BOARD_SIZE,
                    0 <= new_col < self.BOARD_SIZE)):
             raise ValueError('Cell out of range')
-        if self.board[row][col] == '-':
+        if not self.board[row][col]:
             raise ValueError('No pawn in the cell')
-        if self.board[new_row][new_col] != '-':
+        if self.board[new_row][new_col]:
             raise ValueError('New cell is already occupied')
         if self.board[row][col].color != self.turn:
             raise ValueError('Not your turn')
@@ -61,6 +97,6 @@ class Board:
 
 
 b = Board()
-print(b)
+b.print_board()
 b.move_pawn(0, 4, 0, 5)
-print(b)
+b.print_board()
