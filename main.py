@@ -36,11 +36,14 @@ class Pawn:
 
 
 class Board:
-    def __init__(self) -> None:
+    def __init__(self, board=None, turn=True) -> None:
         self.BOARD_SIZE = 16
-        self.board = [[None for _ in range(16)] for _ in range(16)]
-        self.init_board()
-        self.turn = True
+        if not board:
+            self.board = [[None for _ in range(16)] for _ in range(16)]
+            self.init_board()
+        else:
+            self.board = board.copy()
+        self.turn = turn
 
     def __str__(self) -> str:
         return '\n'.join([' '.join([str(cell) for cell in row]) for row in self.board]) + '\n'
