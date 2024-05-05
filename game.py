@@ -63,7 +63,7 @@ class Board:
 
         return pos_moves
 
-    def get_pawn_moves(self, row, col):
+    def get_pawn_moves(self, row, col, came_from=None):
         if self.board[row][col] == 0:
             return []
         elif self.board[row][col] != self.turn:
@@ -92,43 +92,21 @@ class Board:
                     if self.board[jump_row][jump_col] == 0:
                         moves.append((jump_row, jump_col))
                         board_after_jump = Board(self.board, self.turn)
-                        board_after_jump.move_pawn(
-                            row, col, jump_row, jump_col)
-                        moves.append(board_after_jump.get_pawn_moves(
-                            jump_row, jump_col, came_from=(direction[0] * -1, direction[1] * -1)))
-        return moves
-
-    def get_pawn_jump_moves(self, row, col, came_from):
-        directions = (
-            (1, 0),
-            (-1, 0),
-            (0, 1),
-            (0, -1),
-            (1, 1),
-            (-1, 1),
-            (1, -1),
-            (-1, -1),
-        )
-        moves = []
-        for direction in directions:
-            if direction == came_from:
-                continue
-            new_row = row + direction[0]
-            new_col = col + direction[1]
-            if not (0 <= new_row < self.BOARD_SIZE and 0 <= new_col < self.BOARD_SIZE):
-                continue
-            if self.board[new_row][new_col] == 0:
-                continue
-            else:
-                # jump and look for further jumps
-                pass
+                        board_after_jump.board[jump_row][jump_col] = self.turn
+                        jumps = board_after_jump.get_pawn_moves(
+                            jump_row, jump_col)
+                        for jump in jumps:
+                            moves.append(jump)
         return moves
 
 
 b = Board()
 # b.move_pawn(0, 4, 0, 5)
 print(b, end='\n\n')
-print('All possible moves')
+b.move_pawn(1, 4, 1, 5)
+print(b, end='\n\n')
+b.move_pawn(15, 11, 15, 10)
+print(b, end='\n\n')
 for pos, moves in b.get_all_possible_moves().items():
     print(pos, moves)
     print()
