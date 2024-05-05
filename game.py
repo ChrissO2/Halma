@@ -116,9 +116,9 @@ class Board:
                 if 0 <= jump_row < self.BOARD_SIZE and 0 <= jump_col < self.BOARD_SIZE:
                     if self.board[jump_row][jump_col] == 0 and (jump_row, jump_col) not in visited:
                         moves.append((jump_row, jump_col))
-                        visited.append((jump_row, jump_col))
+                        new_visited = visited + [(jump_row, jump_col)]
                         further_jumps = self.get_pawn_jumps(
-                            jump_row, jump_col, visited)
+                            jump_row, jump_col, new_visited)
                         if further_jumps:
                             moves.extend(further_jumps)
 
@@ -132,6 +132,5 @@ b = Board()
 # print(b, end='\n\n')
 # b.move_pawn(15, 11, 15, 10)
 print(b, end='\n\n')
-print(len(b.get_all_possible_moves().items()))
 for pos, moves in b.get_all_possible_moves().items():
     print(pos, moves)
