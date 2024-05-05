@@ -1,4 +1,6 @@
 import copy
+from const import PLAYER1_POSITIONS, DIRECTIONS
+import random
 
 
 class Board:
@@ -24,14 +26,7 @@ class Board:
             raise ValueError('Invalid position')
 
     def init_board(self):
-        player1_positions = (
-            (0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
-            (1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
-            (2, 0), (2, 1), (2, 2), (2, 3),
-            (3, 0), (3, 1), (3, 2),
-            (4, 0), (4, 1),
-        )
-        for pos in player1_positions:
+        for pos in PLAYER1_POSITIONS:
             self.add_pawn(pos[0], pos[1], True)
             self.add_pawn(self.BOARD_SIZE - 1 -
                           pos[0], self.BOARD_SIZE - 1 - pos[1], False)
@@ -68,18 +63,8 @@ class Board:
             return []
         elif self.board[row][col] != self.turn:
             return []
-        directions = (
-            (1, 0),
-            (-1, 0),
-            (0, 1),
-            (0, -1),
-            (1, 1),
-            (-1, 1),
-            (1, -1),
-            (-1, -1),
-        )
         moves = []
-        for direction in directions:
+        for direction in DIRECTIONS:
             new_row, new_col = row + direction[0], col + direction[1]
             if not (0 <= new_row < self.BOARD_SIZE and 0 <= new_col < self.BOARD_SIZE):
                 continue
@@ -94,17 +79,7 @@ class Board:
 
     def get_pawn_jumps(self, row, col, visited=[]):
         moves = []
-        directions = (
-            (1, 0),
-            (-1, 0),
-            (0, 1),
-            (0, -1),
-            (1, 1),
-            (-1, 1),
-            (1, -1),
-            (-1, -1),
-        )
-        for direction in directions:
+        for direction in DIRECTIONS:
             new_row, new_col = row + direction[0], col + direction[1]
             if not (0 <= new_row < self.BOARD_SIZE and 0 <= new_col < self.BOARD_SIZE):
                 continue
@@ -123,14 +98,3 @@ class Board:
                             moves.extend(further_jumps)
 
         return moves
-
-
-b = Board()
-# b.move_pawn(0, 4, 0, 5)
-# print(b, end='\n\n')
-# b.move_pawn(1, 4, 1, 5)
-# print(b, end='\n\n')
-# b.move_pawn(15, 11, 15, 10)
-print(b, end='\n\n')
-for pos, moves in b.get_all_possible_moves().items():
-    print(pos, moves)
