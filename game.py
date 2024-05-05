@@ -1,6 +1,5 @@
 import copy
 from const import PLAYER1_POSITIONS, DIRECTIONS
-import random
 
 
 class Board:
@@ -75,7 +74,7 @@ class Board:
         if possible_jumps:
             moves.extend(possible_jumps)
 
-        return moves
+        return list(set(moves))
 
     def get_pawn_jumps(self, row, col, visited=[]):
         moves = []
