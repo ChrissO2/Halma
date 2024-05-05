@@ -83,30 +83,55 @@ class Board:
             new_row, new_col = row + direction[0], col + direction[1]
             if not (0 <= new_row < self.BOARD_SIZE and 0 <= new_col < self.BOARD_SIZE):
                 continue
-            if self.board[new_row][new_col] == 0:
+            elif self.board[new_row][new_col] == 0:
                 moves.append((new_row, new_col))
+
+        possible_jumps = self.get_pawn_jumps(row, col)
+        if possible_jumps:
+            moves.extend(possible_jumps)
+
+        return moves
+
+    def get_pawn_jumps(self, row, col, visited=[]):
+        moves = []
+        directions = (
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (-1, 1),
+            (1, -1),
+            (-1, -1),
+        )
+        for direction in directions:
+            new_row, new_col = row + direction[0], col + direction[1]
+            if not (0 <= new_row < self.BOARD_SIZE and 0 <= new_col < self.BOARD_SIZE):
+                continue
+            elif self.board[new_row][new_col] == 0:
+                continue
             else:
                 jump_row, jump_col = new_row + \
                     direction[0], new_col + direction[1]
                 if 0 <= jump_row < self.BOARD_SIZE and 0 <= jump_col < self.BOARD_SIZE:
-                    if self.board[jump_row][jump_col] == 0:
+                    if self.board[jump_row][jump_col] == 0 and (jump_row, jump_col) not in visited:
                         moves.append((jump_row, jump_col))
-                        board_after_jump = Board(self.board, self.turn)
-                        board_after_jump.board[jump_row][jump_col] = self.turn
-                        jumps = board_after_jump.get_pawn_moves(
-                            jump_row, jump_col)
-                        for jump in jumps:
-                            moves.append(jump)
+                        visited.append((jump_row, jump_col))
+                        further_jumps = self.get_pawn_jumps(
+                            jump_row, jump_col, visited)
+                        if further_jumps:
+                            moves.extend(further_jumps)
+
         return moves
 
 
 b = Board()
 # b.move_pawn(0, 4, 0, 5)
+# print(b, end='\n\n')
+# b.move_pawn(1, 4, 1, 5)
+# print(b, end='\n\n')
+# b.move_pawn(15, 11, 15, 10)
 print(b, end='\n\n')
-b.move_pawn(1, 4, 1, 5)
-print(b, end='\n\n')
-b.move_pawn(15, 11, 15, 10)
-print(b, end='\n\n')
+print(len(b.get_all_possible_moves().items()))
 for pos, moves in b.get_all_possible_moves().items():
     print(pos, moves)
-    print()
