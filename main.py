@@ -25,4 +25,5 @@ def get_max_pos_moves():
     return max(no_pos_moves)
 
 
-print(Heuristics.dist_from_oponent_corner(Board(), 1))
+b = Board()
+print(b)
