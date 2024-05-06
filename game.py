@@ -1,5 +1,5 @@
 import copy
-from const import PLAYER1_POSITIONS, DIRECTIONS
+from const import PLAYER1_START_POSITIONS, PLAYER2_START_POSITIONS, DIRECTIONS
 
 
 class Board:
@@ -25,10 +25,12 @@ class Board:
             raise ValueError('Invalid position')
 
     def init_board(self):
-        for pos in PLAYER1_POSITIONS:
+        for pos in PLAYER1_START_POSITIONS:
             self.add_pawn(pos[0], pos[1], True)
-            self.add_pawn(self.BOARD_SIZE - 1 -
-                          pos[0], self.BOARD_SIZE - 1 - pos[1], False)
+            # self.add_pawn(self.BOARD_SIZE - 1 -
+            #               pos[0], self.BOARD_SIZE - 1 - pos[1], False)
+        for pos in PLAYER2_START_POSITIONS:
+            self.add_pawn(pos[0], pos[1], False)
 
     def move_pawn(self, row, col, new_row, new_col):
         if not all((0 <= row < self.BOARD_SIZE,
@@ -97,3 +99,21 @@ class Board:
                             moves.extend(further_jumps)
 
         return moves
+
+    def is_game_over(self):
+        isPlayer1Win = True
+        isPlayer2Win = True
+        for pos in PLAYER1_START_POSITIONS:
+            if self.board[pos[0]][pos[1]] != 2:
+                isPlayer1Win = False
+                break
+        for pos in PLAYER2_START_POSITIONS:
+            if self.board[pos[0]][pos[1]] != 1:
+                isPlayer2Win = False
+                break
+        if isPlayer1Win:
+            return 1
+        elif isPlayer2Win:
+            return 2
+        else:
+            return 0
