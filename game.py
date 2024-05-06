@@ -105,11 +105,11 @@ class Board:
         isPlayer2Win = True
         for pos in PLAYER1_START_POSITIONS:
             if self.board[pos[0]][pos[1]] != 2:
-                isPlayer1Win = False
+                isPlayer2Win = False
                 break
         for pos in PLAYER2_START_POSITIONS:
             if self.board[pos[0]][pos[1]] != 1:
-                isPlayer2Win = False
+                isPlayer1Win = False
                 break
         if isPlayer1Win:
             return 1
