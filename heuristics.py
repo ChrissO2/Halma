@@ -5,7 +5,7 @@ from const import DIRECTIONS
 
 class Heuristics:
     @staticmethod
-    def random():
+    def random(board: Board, player: int):
         return random()
 
     @staticmethod
