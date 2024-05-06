@@ -42,7 +42,7 @@ def minimax(board: Board, depth: int, maximizing: bool, player: int, eval_func) 
         return min_eval, best_move
 
 
-def alfabeta(board: Board, depth: int, maximizing: bool, player: int, eval_func, alfa=float('+inf'), beta=float('-inf')) -> float:
+def alfabeta(board: Board, depth: int, maximizing: bool, player: int, eval_func, alfa=float('-inf'), beta=float('+inf')) -> float:
     is_over = board.is_game_over()
     if is_over:
         return (float('+inf'), None) if is_over == player else (float('-inf'), None)
@@ -54,8 +54,9 @@ def alfabeta(board: Board, depth: int, maximizing: bool, player: int, eval_func,
         best_move = None
         max_eval = -float('inf')
         for pawn, move in board.get_all_possible_moves().items():
-            # pawn (row, col), move [(new_row, new_col), ...]
             for new_row, new_col in move:
+                if not best_move:
+                    best_move = (pawn, (new_row, new_col))
                 new_board = Board(board.board, board.turn)
                 new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
                 eval = alfabeta(new_board, depth - 1, False,
@@ -73,6 +74,8 @@ def alfabeta(board: Board, depth: int, maximizing: bool, player: int, eval_func,
         min_eval = float('inf')
         for pawn, move in board.get_all_possible_moves().items():
             for new_row, new_col in move:
+                if not best_move:
+                    best_move = (pawn, (new_row, new_col))
                 new_board = Board(board.board, board.turn)
                 new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
                 eval = alfabeta(new_board, depth - 1, True,
@@ -86,7 +89,7 @@ def alfabeta(board: Board, depth: int, maximizing: bool, player: int, eval_func,
         return min_eval, best_move
 
 
-def alfabeta_known_positions(board: Board, depth: int, maximizing: bool, player: int, eval_func, alfa=float('+inf'), beta=float('-inf'), known_pos=[]) -> float:
+def alfabeta_known_positions(board: Board, depth: int, maximizing: bool, player: int, eval_func, alfa=float('-inf'), beta=float('+inf'), known_pos=[]) -> float:
     is_over = board.is_game_over()
     if is_over:
         return (float('+inf'), None) if is_over == player else (float('-inf'), None)
