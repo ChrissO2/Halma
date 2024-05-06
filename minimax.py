@@ -3,38 +3,128 @@ from heuristics import Heuristics
 from time import time
 
 
-def minimax(board: Board, depth: int, maximizing: bool, player: int, eval_func) -> int:
+def minimax(board: Board, depth: int, maximizing: bool, player: int, eval_func) -> float:
     is_over = board.is_game_over()
     if is_over:
-        print(is_over)
-        return 2 if is_over == player else -2
+        return (float('+inf'), None) if is_over == player else (float('-inf'), None)
 
     if depth == 0:
-        return eval_func(board, player)
+        return (eval_func(board, player), None)
 
     if maximizing:
+        best_move = None
         max_eval = -float('inf')
         for pawn, move in board.get_all_possible_moves().items():
             # pawn (row, col), move [(new_row, new_col), ...]
             for new_row, new_col in move:
                 new_board = Board(board.board, board.turn)
                 new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
-                eval = minimax(new_board, depth - 1, False, player, eval_func)
-                max_eval = max(max_eval, eval)
-        return max_eval
+                eval = minimax(new_board, depth - 1,
+                               False, player, eval_func)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = (pawn, (new_row, new_col))
+        return max_eval, best_move
 
     else:
+        best_move = None
         min_eval = float('inf')
         for pawn, move in board.get_all_possible_moves().items():
             for new_row, new_col in move:
                 new_board = Board(board.board, board.turn)
                 new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
-                eval = minimax(new_board, depth - 1, True, player, eval_func)
-                min_eval = min(min_eval, eval)
-        return min_eval
+                eval = minimax(new_board, depth - 1,
+                               True, player, eval_func)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = (pawn, (new_row, new_col))
+
+        return min_eval, best_move
 
 
-b = Board()
-s_time = time()
-minimax(b, 3, True, 1, Heuristics.dist_from_oponent_corner)
-print(time() - s_time)
+def alfabeta(board: Board, depth: int, maximizing: bool, player: int, eval_func, alfa=float('+inf'), beta=float('-inf')) -> float:
+    is_over = board.is_game_over()
+    if is_over:
+        return (float('+inf'), None) if is_over == player else (float('-inf'), None)
+
+    if depth == 0:
+        return (eval_func(board, player), None)
+
+    if maximizing:
+        best_move = None
+        max_eval = -float('inf')
+        for pawn, move in board.get_all_possible_moves().items():
+            # pawn (row, col), move [(new_row, new_col), ...]
+            for new_row, new_col in move:
+                new_board = Board(board.board, board.turn)
+                new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
+                eval = alfabeta(new_board, depth - 1, False,
+                                player, eval_func, alfa, beta)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = (pawn, (new_row, new_col))
+                alfa = max(alfa, eval)
+                if beta <= alfa:
+                    break
+        return max_eval, best_move
+
+    else:
+        best_move = None
+        min_eval = float('inf')
+        for pawn, move in board.get_all_possible_moves().items():
+            for new_row, new_col in move:
+                new_board = Board(board.board, board.turn)
+                new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
+                eval = alfabeta(new_board, depth - 1, True,
+                                player, eval_func, alfa, beta)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = (pawn, (new_row, new_col))
+                beta = min(beta, eval)
+                if beta <= alfa:
+                    break
+        return min_eval, best_move
+
+
+def alfabeta_known_positions(board: Board, depth: int, maximizing: bool, player: int, eval_func, alfa=float('+inf'), beta=float('-inf'), known_pos=[]) -> float:
+    is_over = board.is_game_over()
+    if is_over:
+        return (float('+inf'), None) if is_over == player else (float('-inf'), None)
+
+    if depth == 0:
+        return eval_func(board, player, known_pos), None
+
+    if maximizing:
+        best_move = None
+        max_eval = -float('inf')
+        for pawn, move in board.get_all_possible_moves().items():
+            # pawn (row, col), move [(new_row, new_col), ...]
+            for new_row, new_col in move:
+                new_board = Board(board.board, board.turn)
+                new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
+                eval = alfabeta_known_positions(new_board, depth - 1, False,
+                                                player, eval_func, alfa, beta, known_pos=known_pos)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = (pawn, (new_row, new_col))
+                alfa = max(alfa, eval)
+                if beta <= alfa:
+                    break
+        return max_eval, best_move
+
+    else:
+        best_move = None
+        min_eval = float('inf')
+        for pawn, move in board.get_all_possible_moves().items():
+            for new_row, new_col in move:
+                new_board = Board(board.board, board.turn)
+                new_board.move_pawn(pawn[0], pawn[1], new_row, new_col)
+                eval = alfabeta_known_positions(new_board, depth - 1, True,
+                                                player, eval_func, alfa, beta, known_pos=known_pos)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = (pawn, (new_row, new_col))
+                beta = min(beta, eval)
+                if beta <= alfa:
+                    break
+        return min_eval, best_move
