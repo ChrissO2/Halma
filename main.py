@@ -1,7 +1,10 @@
+from copy import deepcopy
 from game import Board
 import random
 from time import time
 from heuristics import Heuristics
+from minimax import minimax, alfabeta, alfabeta_known_positions
+from const import PLAYER1_START_POSITIONS, PLAYER2_START_POSITIONS
 
 
 def get_max_pos_moves():
@@ -25,5 +28,66 @@ def get_max_pos_moves():
     return max(no_pos_moves)
 
 
-b = Board()
-print(b)
+def test_distance_values():
+    b = Board()
+    print(Heuristics.dist_from_oponent_corner(b, 1))
+
+    for pos in PLAYER1_START_POSITIONS:
+        b.board[pos[0]][pos[1]] = 2
+
+    for pos in PLAYER2_START_POSITIONS:
+        b.board[pos[0]][pos[1]] = 1
+        print(Heuristics.dist_from_oponent_corner(b, 1))
+    print(b)
+    print(b.is_game_over())
+
+    print(Heuristics.dist_from_oponent_corner(b, 1))
+
+
+def test_endgame_values():
+    b = Board()
+    print(Heuristics.no_pawns_at_finish(b, 2))
+
+    for pos in PLAYER2_START_POSITIONS:
+        b.board[pos[0]][pos[1]] = 1
+
+    for pos in PLAYER1_START_POSITIONS:
+        b.board[pos[0]][pos[1]] = 2
+        print(Heuristics.no_pawns_at_finish(b, 2))
+
+    print(Heuristics.no_pawns_at_finish(b, 2))
+
+
+def simulate_game(heuristic, depth=3):
+    board = Board()
+    known_pos = []
+    game_won = []
+    while not board.is_game_over():
+        known_pos.append(deepcopy(board.board))
+        player = board.turn
+        best_move = minimax(
+            board, depth, True, player, heuristic)
+        # best_move = minimax(
+        #     board, depth, True, player, heuristic)
+        print(f'Player to make move: {player}')
+        print(f'eval: {best_move[0]}')
+        print(
+            f'Distance heuristic {Heuristics.dist_from_oponent_corner(board, player)}')
+        print(
+            f'No pawns at finish: {Heuristics.no_pawns_at_finish(board, player)}')
+        print(
+            f'No isolated pawns: {Heuristics.no_isolated_pawns(board, player)}')
+        print(
+            f'No pawns at start: {Heuristics.no_pawns_at_start(board, player)}')
+        print(f'Complex heuristic: {Heuristics.complex(board, player)}')
+        print(board)
+        board.move_pawn(*best_move[1][0], *best_move[1][1])
+        print(f'Is game won: {board.is_game_over()}')
+        game_won.append(board.is_game_over())
+        print(list(set(game_won)))
+
+
+if __name__ == '__main__':
+    simulate_game(Heuristics.complex, 1)
+    # test_distance_values()
+    # test_endgame_values()
