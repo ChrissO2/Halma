@@ -44,6 +44,20 @@ def test_distance_values():
     print(Heuristics.dist_from_oponent_corner(b, 1))
 
 
+def test_simple_distance_values():
+    b = Board()
+    print(Heuristics.simple_distance(b, 1))
+
+    for pos in PLAYER1_START_POSITIONS:
+        b.board[pos[0]][pos[1]] = 2
+
+    for pos in PLAYER2_START_POSITIONS:
+        b.board[pos[0]][pos[1]] = 1
+        print(Heuristics.simple_distance(b, 1))
+
+    print(Heuristics.simple_distance(b, 1))
+
+
 def test_endgame_values():
     b = Board()
     print(Heuristics.no_pawns_at_finish(b, 2))
@@ -64,9 +78,14 @@ def simulate_game(heuristic, depth=3):
     game_won = []
     while not board.is_game_over():
         known_pos.append(deepcopy(board.board))
+        print(f'Tura: {len(known_pos)}')
+        if len(known_pos) > 1000:
+            depth = 3
         player = board.turn
-        best_move = minimax(
+        best_move = alfabeta(
             board, depth, True, player, heuristic)
+        # best_move = alfabeta_known_positions(
+        #     board, depth, True, player, heuristic, known_pos=known_pos)
         # best_move = minimax(
         #     board, depth, True, player, heuristic)
         print(f'Player to make move: {player}')
@@ -86,8 +105,16 @@ def simulate_game(heuristic, depth=3):
         game_won.append(board.is_game_over())
         print(list(set(game_won)))
 
+    print('\n\n----------------------------')
+    print(f'Game won by: {board.is_game_over()}')
+    print(board)
+    return board
+
 
 if __name__ == '__main__':
-    simulate_game(Heuristics.complex, 1)
+    board = simulate_game(Heuristics.complex, 2)
+    # print(board)
+    # print(board.is_game_over())
     # test_distance_values()
     # test_endgame_values()
+    # test_simple_distance_values()
