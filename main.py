@@ -3,7 +3,7 @@ from game import Board
 import random
 from time import time
 from heuristics import Heuristics
-from minimax import minimax, alfabeta, alfabeta_known_positions
+from minimax import minimax, alfabeta
 from const import PLAYER1_START_POSITIONS, PLAYER2_START_POSITIONS
 
 
@@ -74,45 +74,56 @@ def test_endgame_values():
 
 def simulate_game(heuristic, depth=3):
     board = Board()
-    known_pos = []
-    game_won = []
+    turn_num = 1
     while not board.is_game_over():
-        known_pos.append(deepcopy(board.board))
-        print(f'Tura: {len(known_pos)}')
-        if len(known_pos) > 1000:
-            depth = 3
+        print(f'Turn: {int(turn_num)}, Player: {board.turn}')
         player = board.turn
+        best_move = None
         best_move = alfabeta(
-            board, depth, True, player, heuristic)
-        # best_move = alfabeta_known_positions(
-        #     board, depth, True, player, heuristic, known_pos=known_pos)
-        # best_move = minimax(
-        #     board, depth, True, player, heuristic)
-        print(f'Player to make move: {player}')
-        print(f'eval: {best_move[0]}')
-        print(
-            f'Distance heuristic {Heuristics.dist_from_oponent_corner(board, player)}')
-        print(
-            f'No pawns at finish: {Heuristics.no_pawns_at_finish(board, player)}')
-        print(
-            f'No isolated pawns: {Heuristics.no_isolated_pawns(board, player)}')
-        print(
-            f'No pawns at start: {Heuristics.no_pawns_at_start(board, player)}')
-        print(f'Complex heuristic: {Heuristics.complex(board, player)}')
+            board, 1, True, player, heuristic)
         print(board)
         board.move_pawn(*best_move[1][0], *best_move[1][1])
-        print(f'Is game won: {board.is_game_over()}')
-        game_won.append(board.is_game_over())
-        print(list(set(game_won)))
+        turn_num += 0.5
 
+    print(board)
     print('\n\n----------------------------')
     print(f'Game won by: {board.is_game_over()}')
+
+
+def simulate_game_adaptive(player1_heuristics, player2_heuristics, depth=2):
+    board = Board()
+    turn_num = 1
+    while not board.is_game_over():
+        print(f'Turn: {int(turn_num)}, Player: {board.turn}')
+        player = board.turn
+        if player == 1:
+            keys = sorted(key for key in player1_heuristics.keys()
+                          if key > turn_num)
+            heuristic = player1_heuristics[keys[0]
+                                           ] if keys else player1_heuristics[list(player1_heuristics.keys())[-1]]
+            best_move = alfabeta(
+                board, 1, True, player, heuristic)
+        else:
+            keys = sorted(key for key in player2_heuristics.keys()
+                          if key > turn_num)
+            heuristic = player2_heuristics[keys[0]
+                                           ] if keys else player2_heuristics[list(player2_heuristics.keys())[-1]]
+            best_move = alfabeta(
+                board, depth, True, player, heuristic)
+        print(board)
+        board.move_pawn(*best_move[1][0], *best_move[1][1])
+        turn_num += 0.5
+
     print(board)
-    return board
+    print('\n\n----------------------------')
+    print(f'Game won by: {board.is_game_over()}')
 
 
 if __name__ == '__main__':
-    board = simulate_game(Heuristics.complex, 2)
+    # simulate_game(Heuristics.complex, 1)
+    p1_heuristics = {50: Heuristics.random, 200: Heuristics.complex}
+    p2_heuristics = {1: Heuristics.complex}
+    simulate_game_adaptive(p2_heuristics, p2_heuristics, 2)
     # print(board)
     # print(board.is_game_over())
     # test_distance_values()

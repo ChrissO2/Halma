@@ -181,15 +181,28 @@ class Heuristics:
         return result / 19
 
     @staticmethod
-    def complex(board: Board, player: int, known_positions: list = []):
+    def complex(board: Board, player: int):
         result = 0
-        result += Heuristics.dist_from_oponent_corner(board, player) * 2
-        # result += Heuristics.simple_distance(board, player) * 2
-        result += Heuristics.no_pawns_at_finish(board, player) * 44
-        result += Heuristics.random(board, player) * 0.1
-        result += Heuristics.no_pawns_at_start(board, player) * 1
-        result += Heuristics.no_isolated_pawns(board, player) * 0.5
-        # result += Heuristics.single_pawn_distance(board, player) * 2
-        # if board.board in known_positions:
-        #     result -= 1000
+        result += Heuristics.dist_from_oponent_corner(board, player)
+        result += Heuristics.no_pawns_at_finish(board, player)
+        result += Heuristics.no_isolated_pawns(board, player) * 0.1
+        result += Heuristics.no_pawns_at_start(board, player) * 0.1
+        result -= Heuristics.no_pawns_on_edge(board, player) * 0.01
+        return result
+
+    @staticmethod
+    def complex2(board: Board, player: int):
+        result = 0
+        result += Heuristics.dist_from_oponent_corner(board, player)
+        result += Heuristics.no_pawns_at_finish(board, player)
+        result += Heuristics.no_isolated_pawns(board, player) * 0.1
+        result += Heuristics.no_pawns_at_start(board, player) * 0.1
+        result -= Heuristics.no_pawns_on_edge(board, player) * 0.01
+        return result
+
+    @staticmethod
+    def halfrandom(board, player):
+        result = 0
+        result += Heuristics.random(board, player)
+        result += Heuristics.no_pawns_at_start(board, player)
         return result
